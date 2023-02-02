@@ -29,4 +29,5 @@ override.tf.json
 # example: *tfplan*
 
 # Misc. Files
-provider.tf
+terraform.tfvars
+.terraform.lock.hcl
