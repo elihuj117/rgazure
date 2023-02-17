@@ -10,25 +10,24 @@ locals {
               EOF
 }
 
-resource "azurerm_linux_virtual_machine_scale_set" "vm_scaleset" {
-  name                            = "vm_scaleset"
+resource "azurerm_linux_virtual_machine_scale_set" "vmscaleset" {
+  name                            = "vmscaleset"
   location                        = var.resource_group_location
   resource_group_name             = var.resource_group_name
   #upgrade_policy_mode            = "Manual"
   zone_balance                    = true
   zones                           = ["1","2"]
-  computer_name_prefix            = "${var.resource_group_name}-vm"
   custom_data                     = base64encode(local.custom_data)
   sku                             = "Standard_B1ls"
   instances                       = 2
   admin_username                  = var.admin_user
-  admin_password                  = var.admin_password
-  disable_password_authentication = false
+  #admin_password                  = var.admin_password
+  #disable_password_authentication = false
 
- # admin_ssh_key { 
-    #username   = var.admin_user
-    #public_key = local.first_public_key
- # }
+  admin_ssh_key { 
+    username   = var.admin_user
+    public_key = file("id_rsa.pub")
+  }
 
   source_image_reference {
     publisher = "Canonical"

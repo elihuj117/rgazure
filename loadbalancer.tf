@@ -19,22 +19,22 @@ resource "azurerm_lb" "vmss_lb" {
 }
 
 resource "azurerm_lb_backend_address_pool" "vmss_lb_bpepool" {
+    name                = "vmss_lb_bpepool"
     loadbalancer_id     = azurerm_lb.vmss_lb.id
-    name                = "BackEndAddressPool"
     #resource_group_name = var.resource_group_name
 }
 
 resource "azurerm_lb_probe" "vmss_lb_probe" {
+    name                = "vmss_lb_probe"
     resource_group_name = var.resource_group_name
     loadbalancer_id     = azurerm_lb.vmss_lb.id
-    name                = "http-running-probe"
     port                = var.application_port
 }
 
-resource "azurerm_lb_rule" "vmss_lbnatrule" {
-    resource_group_name = var.resource_group_name
-    loadbalancer_id                = azurerm_lb.vmss_lb.id
+resource "azurerm_lb_rule" "vmss_lb_natrule" {
     name                           = "http"
+    resource_group_name            = var.resource_group_name
+    loadbalancer_id                = azurerm_lb.vmss_lb.id
     protocol                       = "Tcp"
     frontend_port                  = var.application_port
     backend_port                   = var.application_port

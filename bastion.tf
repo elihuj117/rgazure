@@ -6,49 +6,44 @@ resource "azurerm_public_ip" "bastion_public_ip" {
 }
 
 resource "azurerm_network_interface" "bastion_nic" {
-  name                = "nic"
+  name                = "bastion_nic"
   location            = var.resource_group_location
   resource_group_name = var.resource_group_name
 
   ip_configuration {
-    name                          = "bastion-ip"
+    name                          = "bastion_ip"
     subnet_id                     = azurerm_subnet.public.id
     private_ip_address_allocation = "Dynamic"
     public_ip_address_id          = azurerm_public_ip.bastion_public_ip.id
   }
 }
 
-resource "azurerm_virtual_machine" "bastion_vm" {
-  name                  = "bastion"
-  location              = var.resource_group_location
-  resource_group_name   = var.resource_group_name
-  network_interface_ids = [azurerm_network_interface.bastion_nic.id]
-  vm_size               = "Standard_B1ls"
+resource "azurerm_linux_virtual_machine" "bastion_vm" {
+  name                            = "bastion_vm"
+  location                        = var.resource_group_location
+  resource_group_name             = var.resource_group_name
+  network_interface_ids           = [azurerm_network_interface.bastion_nic.id]
+  size                            = "Standard_B1ls"
+  disable_password_authentication = true
+  computer_name                   = "bastion-vm"
+  admin_username                  = var.admin_user
+  
+  admin_ssh_key { 
+    username   = var.admin_user
+    public_key = file("id_rsa.pub")
+  }
 
-  # Uncomment this line to delete the OS disk automatically when deleting the VM
-   delete_os_disk_on_termination = true
-
-  # Uncomment this line to delete the data disks automatically when deleting the VM
-   delete_data_disks_on_termination = true
-
-  storage_image_reference {
+  source_image_reference {
     publisher = "Canonical"
     offer     = "UbuntuServer"
     sku       = "16.04-LTS"
     version   = "latest"
   }
-  storage_os_disk {
-    name              = "myosdisk1"
-    caching           = "ReadWrite"
-    create_option     = "FromImage"
-    managed_disk_type = "Standard_LRS"
+
+  os_disk {
+    name                 = "bastion_osdisk"
+    caching              = "ReadWrite"
+    storage_account_type = "Standard_LRS"
   }
-  os_profile {
-    computer_name  = "bastion"
-    admin_username = var.admin_user
-    admin_password = var.admin_password
-  }
-  os_profile_linux_config {
-    disable_password_authentication = false
-  }
+
 }
